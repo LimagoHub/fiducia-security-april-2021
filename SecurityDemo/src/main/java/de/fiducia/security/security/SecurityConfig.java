@@ -25,72 +25,84 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter{
-	
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
 	private final UserRepository userRepository;
 
 	public SecurityConfig(final UserRepository userRepository) {
 		this.userRepository = userRepository;
 	}
-	
+
 	@Override
 	protected void configure(final HttpSecurity http) throws Exception {
-		http
-			.authorizeRequests()
-				.antMatchers("/", "/home").permitAll()
-				.antMatchers("/unsecure/*").permitAll()
-				.antMatchers("/secure/*").hasAnyRole("USER","GUEST")
-				.anyRequest().authenticated()
-			
+		http.authorizeRequests().antMatchers("/", "/home").permitAll().antMatchers("/unsecure/*").permitAll()
+				.antMatchers("/secure/*").hasAnyRole("USER", "GUEST").anyRequest().authenticated()
+
 				.and()
-				
-			.formLogin()
-				.and()
-			.logout()
-				.permitAll();
-	}
-	
-	@Bean 
-    @Override
-    public UserDetailsService userDetailsService() {
-        return username -> userRepository.findById(username).orElseThrow(()->new UsernameNotFoundException(username));
+
+				.formLogin().and().logout().permitAll();
 	}
 
-
-//	@Bean
-//	@Override
-//	public UserDetailsService userDetailsService() {
-//		final UserDetails user =
-//			 User //.withDefaultPasswordEncoder()
-//			 
-//				.withUsername("user")
-//				.password("$2a$10$t6xNCf1ALLobFP64tTvAMel.dggwFqZ8wgbWNfDuIvJKFESc2jsy6")
-//				.roles("USER")
-//				.build();
-//
-//		return new InMemoryUserDetailsManager(user);
-//	}
-	
-	@Bean
-	public PasswordEncoder getPasswordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
-	
 	@Configuration
-	@EnableGlobalMethodSecurity(
-	  prePostEnabled = true, 
-	  securedEnabled = true, 
-	  jsr250Enabled = true)
-	public static class MethodSecurityConfig  extends GlobalMethodSecurityConfiguration {
-		
-		
-		
-		
+	@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
+	public static class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
-		    
-	}		    
-			
+		
+//		private final UserRepository userRepository;
+//
+//		MethodSecurityConfig(final UserRepository userRepository) {
+//			this.userRepository = userRepository;
+//		}
+//		
 
-		    
-	
+		@Override
+		protected RunAsManager runAsManager() {
+			final RunAsManagerImpl runAsManager = new RunAsManagerImpl();
+			runAsManager.setKey("MyRunAsKey");
+			return runAsManager;
+		}
+
+		@Autowired
+		public void configureGlobal(final AuthenticationManagerBuilder auth) throws Exception {
+			auth
+			.authenticationProvider(runAsAuthenticationProvider())
+			.userDetailsService(userDetailsService())
+			.passwordEncoder(getPasswordEncoder());
+		}
+
+		@Bean
+		public AuthenticationProvider runAsAuthenticationProvider() {
+			final RunAsImplAuthenticationProvider authProvider = new RunAsImplAuthenticationProvider();
+			authProvider.setKey("MyRunAsKey");
+			return authProvider;
+		}
+
+//		@Bean
+//
+//		public UserDetailsService userDetailsService() {
+//			return username -> userRepository.findById(username)
+//					.orElseThrow(() -> new UsernameNotFoundException(username));
+//		}
+
+			@Bean
+			//@Override
+			public UserDetailsService userDetailsService() {
+				final UserDetails user =
+					 User //.withDefaultPasswordEncoder()
+					 
+						.withUsername("user")
+						.password("$2a$10$t6xNCf1ALLobFP64tTvAMel.dggwFqZ8wgbWNfDuIvJKFESc2jsy6")
+						.roles("USER")
+						.build();
+		
+				return new InMemoryUserDetailsManager(user);
+			}
+
+		@Bean
+		public PasswordEncoder getPasswordEncoder() {
+			return new BCryptPasswordEncoder();
+		}
+
+	}
+
 }

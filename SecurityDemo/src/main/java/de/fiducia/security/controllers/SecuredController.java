@@ -20,6 +20,7 @@ public class SecuredController {
 	}
 
 	@GetMapping(path = "/low")
+
 	public void foo() {
 		lowSecureService.lowSecureSeviceFoo();
 	}

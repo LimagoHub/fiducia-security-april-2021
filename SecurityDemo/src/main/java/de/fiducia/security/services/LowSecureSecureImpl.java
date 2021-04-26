@@ -8,7 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
-
+@RunAs("RUN_AS_ADMIN")
 public class LowSecureSecureImpl implements LowSecureService {
 	
 	
@@ -21,13 +21,13 @@ public class LowSecureSecureImpl implements LowSecureService {
 	
 	@Override
 	
-	
+	@Secured("ROLE_USER")
 	public void lowSecureSeviceFoo() {
 		System.out.println("OK");
 		final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 	    System.out.print( "Current User Authorities inside this RunAS method only " + 
 	          auth.getAuthorities().toString());
-		// highSecureService.secureServicesMethodFoo();
+		highSecureService.secureServicesMethodFoo();
 	}
 
 	@Override
