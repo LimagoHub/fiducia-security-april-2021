@@ -17,6 +17,7 @@ import org.springframework.security.config.annotation.web.servlet.configuration.
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -25,6 +26,13 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter{
+	
+	private final UserRepository userRepository;
+
+	public SecurityConfig(final UserRepository userRepository) {
+		this.userRepository = userRepository;
+	}
+	
 	@Override
 	protected void configure(final HttpSecurity http) throws Exception {
 		http
@@ -41,20 +49,27 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 			.logout()
 				.permitAll();
 	}
-
-	@Bean
-	@Override
-	public UserDetailsService userDetailsService() {
-		final UserDetails user =
-			 User //.withDefaultPasswordEncoder()
-			 
-				.withUsername("user")
-				.password("$2a$10$t6xNCf1ALLobFP64tTvAMel.dggwFqZ8wgbWNfDuIvJKFESc2jsy6")
-				.roles("USER")
-				.build();
-
-		return new InMemoryUserDetailsManager(user);
+	
+	@Bean 
+    @Override
+    public UserDetailsService userDetailsService() {
+        return username -> userRepository.findById(username).orElseThrow(()->new UsernameNotFoundException(username));
 	}
+
+
+//	@Bean
+//	@Override
+//	public UserDetailsService userDetailsService() {
+//		final UserDetails user =
+//			 User //.withDefaultPasswordEncoder()
+//			 
+//				.withUsername("user")
+//				.password("$2a$10$t6xNCf1ALLobFP64tTvAMel.dggwFqZ8wgbWNfDuIvJKFESc2jsy6")
+//				.roles("USER")
+//				.build();
+//
+//		return new InMemoryUserDetailsManager(user);
+//	}
 	
 	@Bean
 	public PasswordEncoder getPasswordEncoder() {
