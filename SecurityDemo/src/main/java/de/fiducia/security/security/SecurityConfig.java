@@ -39,7 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 			.authorizeRequests()
 				.antMatchers("/", "/home").permitAll()
 				.antMatchers("/unsecure/*").permitAll()
-				.antMatchers("/secure/*").hasRole("USER")
+				.antMatchers("/secure/*").hasAnyRole("USER","GUEST")
 				.anyRequest().authenticated()
 			
 				.and()
@@ -76,7 +76,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 		return new BCryptPasswordEncoder();
 	}
 	
-			    
+	@Configuration
+	@EnableGlobalMethodSecurity(
+	  prePostEnabled = true, 
+	  securedEnabled = true, 
+	  jsr250Enabled = true)
+	public static class MethodSecurityConfig  extends GlobalMethodSecurityConfiguration {
+		
+		
+		
+		
+
+		    
+	}		    
 			
 
 		    

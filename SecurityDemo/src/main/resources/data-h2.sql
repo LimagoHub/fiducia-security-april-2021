@@ -10,4 +10,5 @@ CREATE TABLE IF NOT EXISTS `tbl_user` (
 );
 
 INSERT INTO `tbl_user` (`username`,`fullname`,`rolle`,password, enabled)
-values ('user','Hersteller','USER','$2a$10$OiXOEDV4bV7gxTPNlg3pZOq/H8jmlnCS7DdDcVXSDdvfax/7pWbVa',TRUE);
+values ('user','Hersteller','USER','$2a$10$OiXOEDV4bV7gxTPNlg3pZOq/H8jmlnCS7DdDcVXSDdvfax/7pWbVa',TRUE)
+,('fritz','Hersteller','GUEST','$2a$10$OiXOEDV4bV7gxTPNlg3pZOq/H8jmlnCS7DdDcVXSDdvfax/7pWbVa',TRUE);
